@@ -19,7 +19,6 @@ io.on('connection', (client) => {
 
         // Join room
         client.join(data.room.name)
-
         let allUsers = users.addUser(client.id, data.user.name, data.room.name)
         let usersByRoom = users.getUserByRoom(data.room.name)
         callback({
@@ -33,25 +32,22 @@ io.on('connection', (client) => {
             .emit('chatStatus', createChatStatus(`${data.user.name} has joined the room`, usersByRoom))
     })
 
-    client.on('createMessage', (data) => {
-        let user = users.getUser(client.id)
-        console.log(user);
-        client.broadcast.to(user.room).emit('createMessage', createMessage(user.name, data.message))
-    })
+    client.on('createMessage', (data, callback) => {
 
-    client.on('createMessage', (data) => {
-        console.log(data);
+        let user = users.getUser(client.id)
+        let message = createMessage(user.name, data.message)
+        client.broadcast.to(user.room).emit('createMessage', message)
+
+        callback(message)
     })
 
     client.on('createPrivateMessage', (data) => {
         let user = users.getUser(client.id)
-        console.log(user);
         client.broadcast.to(data.to).emit('createPrivateMessage', createMessage(user.name, data.message))
     })
 
     client.on('disconnect', () => {
         let user = users.deleteUser(client.id)
-        console.log(`${user.name} disconnected`);
 
         // Notify that use has left the room
         client.broadcast

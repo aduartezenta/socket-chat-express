@@ -1,4 +1,4 @@
-var socket = io();
+var socket = io()
 var params = new URLSearchParams(window.location.search)
 
 if (!params.has('username') || !params.has('chatName')) {
@@ -15,25 +15,27 @@ let data = {
 }
 
 socket.on('connect', function() {
-    console.log('Connected');
+    console.log('Connected')
 
     socket.emit('enterChat', data, function(res) {
-        console.log(res);
+        loadUsers(res.users)
     })
 
     socket.on('chatStatus', (data) => {
-        console.log(data);
+        loadUsers(data.users)
+        addMessage(data)
     })
 
     socket.on('createMessage', (data) => {
-        console.log(data);
+        addMessage(data, false)
     })
 
     socket.on('createPrivateMessage', (data) => {
-        console.log(data);
+        console.log(data)
     })
+
 })
 
 socket.on('disconnect', function() {
-    console.log('Disconnected');
+    console.log('Disconnected')
 })
